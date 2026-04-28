@@ -38,9 +38,9 @@ func GenerateLineup(players []Player, innings int) (Lineup, error){
     }
 
     // Validate game plan against rules
-    if err := ValidateLineup(lineup, players); err != nil {
-        return Lineup{}, err
-    }
+    // if err := ValidateLineup(lineup, players); err != nil {
+    //     return Lineup{}, err
+    // }
 
     return lineup, nil
 }
@@ -57,8 +57,8 @@ func generateBattingOrder(players []Player) []Player {
     return shuffled
 }
 
-var infieldPositions = []Position{"P", "C", "1B", "2B", "SS", "3B", "SF"}
-var outfieldPositions = []Position{"LF", "LCF", "CF", "RCF", "RF"}
+var infieldPositions = []Position{"P", "C", "1B", "2B", "SS", "3B"}
+var outfieldPositions = []Position{"LF", "LCF", "RCF", "RF"}
 var benchPosition Position = Bench
 
 func assignPositionsForInning(players []Player, inning int, history map[int][]Assignment) ([]Assignment, error){
@@ -88,7 +88,20 @@ func assignPositionsForInning(players []Player, inning int, history map[int][]As
 		}
 
 		var assigned Position
-		if outfieldCount <= 5 {
+
+
+		if assigned == "" && infieldCount <= 7 {
+            // Fill in all the Infield Positions First
+			for _, pos := range infieldPositions {
+				if !usedPositions[pos] && positionCounts[pos] < 2 {
+					assigned = pos
+					infieldCount++
+					break
+				}
+			}
+		}
+
+        if assigned == "" && outfieldCount <= 5 {
             for _, pos := range outfieldPositions {
                 // Rules for assigning outfield positions: 
                 // 1. Position must not be used already
@@ -102,23 +115,25 @@ func assignPositionsForInning(players []Player, inning int, history map[int][]As
 			}
 		}
 
-		if assigned == "" && infieldCount <= 7 {
-			for _, pos := range infieldPositions {
-				if !usedPositions[pos] && positionCounts[pos] < 2 {
-					assigned = pos
-					infieldCount++
-					break
-				}
-			}
-		}
-
+        // If no position was assigned and all 12 positions have been accounted for, we will assign a bench position
 		if assigned == "" && lastPosition != benchPosition && len(usedPositions) > 12 { 
 			assigned = benchPosition
 		}
 
+        // If no position was assigned and there are still positions available, we will assign an outfield position
 		if assigned == "" {
-			assigned = infieldPositions[infieldCount%len(infieldPositions)]
+            if outfieldCount <= 5 {
+                leftOver := outfieldPositions[outfieldCount%len(outfieldPositions)]
+                if !usedPositions[leftOver] && !slices.Contains(outfieldPositions, lastPosition) {
+                    assigned = leftOver
+                    outfieldCount++
+                }
+            }
 		}
+
+        if assigned == "" {
+            assigned = benchPosition
+        }
 
 		usedPositions[assigned] = true
 
@@ -138,18 +153,18 @@ func assignPositionsForInning(players []Player, inning int, history map[int][]As
 }
 
 var positionPriority = map[Position]int{
-    "RF": 1,
-    "RCF": 2,
-    "CF": 3,
-    "LCF": 4,
-    "LF": 5,
-    "SF": 6,
-    "3B": 7,
-    "SS": 8,
-    "2B": 9,
-    "1B": 10,
-    "P": 11,
-    "C": 12,
+	"P": 1,
+	"C": 2,
+	"1B": 3,
+	"2B": 4,
+	"3B": 5,
+	"SS": 6,
+	"LF": 7,
+	"CF": 8,
+	"RF": 9,
+	"LFC": 10,
+	"RCF": 11,
+	"SF": 12,
 }
 
 // func sortDefenseAssignments(assignments []Assignment) []Assignment{

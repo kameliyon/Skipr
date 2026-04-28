@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"skipr/internal/usecases/lineup"
+	"slices"
 )
 
 var players []lineup.Player
@@ -24,8 +25,25 @@ func PlayerHandler(w http.ResponseWriter, r *http.Request) {
         playerId++
 		players = append(players, p)
 		w.WriteHeader(http.StatusCreated)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+    case http.MethodDelete:
+        var p lineup.Player
+        if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
+
+        for i, player := range players {
+            if player.Id == p.Id {
+                players = slices.Delete(players, i, i+1)
+                w.WriteHeader(http.StatusNoContent)
+                return
+            }
+        }
+
+        http.Error(w, "Player not found", http.StatusNotFound)
+
+    default:
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -37,12 +55,12 @@ func PlayersHandler(w http.ResponseWriter, r *http.Request) {
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Veevan"
+    p.Name = "Landon"
     playerId++
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Jonah"
+    p.Name = "Noah"
     playerId++
     players = append(players, p)
 
@@ -52,17 +70,17 @@ func PlayersHandler(w http.ResponseWriter, r *http.Request) {
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Calen"
+    p.Name = "Nolan"
     playerId++
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Jaxx"
+    p.Name = "Michael"
     playerId++
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Dez"
+    p.Name = "Bennet"
     playerId++
     players = append(players, p)
 
@@ -72,25 +90,29 @@ func PlayersHandler(w http.ResponseWriter, r *http.Request) {
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Luke"
+    p.Name = "Carter"
     playerId++
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Andrew"
+    p.Name = "Tommy"
     playerId++
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Lucas"
+    p.Name = "Daniel"
     playerId++
     players = append(players, p)
 
     p.Id = playerId
-    p.Name = "Lorenzo"
+    p.Name = "Rocky"
     playerId++
     players = append(players, p)
 
+    p.Id = playerId
+    p.Name = "Braydon"
+    playerId++
+    players = append(players, p)
     w.WriteHeader(http.StatusCreated)
 }
 

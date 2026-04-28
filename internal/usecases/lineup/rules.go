@@ -70,12 +70,12 @@ func ValidateLineup(lineup Lineup, players []Player) error {
 }
 
 func isInfield(pos Position) bool {
-	infields := map[Position]bool{"P": true, "C": true, "1B": true, "2B": true, "SS": true, "3B": true, "SF": true}
+	infields := map[Position]bool{"P": true, "C": true, "1B": true, "2B": true, "SS": true, "3B": true}
 	return infields[pos]
 }
 
 func isOutfield(pos Position) bool {
-	outfields := map[Position]bool{"LF": true, "CF": true, "RF": true, "LCF": true, "RCF": true}
+	outfields := map[Position]bool{"LF": true, "RF": true, "LCF": true, "RCF": true}
 	return outfields[pos]
 }
 
