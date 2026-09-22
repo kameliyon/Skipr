@@ -3,9 +3,17 @@ package store
 import "gorm.io/gorm"
 
 type Team struct {
-    gorm.Model
-    Name string `json:"name"`
-    Players []Player `json:"players"`
+	Id int `gorm."primaryKey"`
+	Name string
+	Players []Player
+	Coach string
+	Record Record	
+
+}
+
+type Record struct {
+	Wins int32 
+	Loses int32
 }
 
 func GetTeamPlayers(teamId int) ([]Player, error){
@@ -35,3 +43,4 @@ func CreateTheMets(db *gorm.DB) error {
 
     return db.Create(&team).Error
 }
+
